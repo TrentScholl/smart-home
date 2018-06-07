@@ -1,0 +1,5 @@
+- platform: denonavr
+  host: !secret denonavr_host
+  zones:
+    - zone: Zone2
+      name: "Back Deck AVR"

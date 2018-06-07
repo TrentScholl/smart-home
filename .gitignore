@@ -1,0 +1,18 @@
+.env
+
+__pycache__/
+*.py[cod]
+
+# Home Assistant Configuration
+
+config/home-assistant/*
+!config/home-assistant/*/
+!config/home-assistant/*.yaml
+!config/home-assistant/*.sh
+entity_registry.yaml
+known_devices.yaml
+secrets.yaml
+config/home-assistant/.cloud
+config/home-assistant/deps
+config/home-assistant/lib
+config/home-assistant/tts

@@ -1,0 +1,5 @@
+name: "Ayesha's Work"
+latitude: !secret zone_ayesha_work_latitude
+longitude: !secret zone_ayesha_work_longitude
+radius: 250
+icon: mdi:domain

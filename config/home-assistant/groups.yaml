@@ -1,0 +1,122 @@
+  default_view:
+    name: Home
+    view: yes
+    entities:
+      - group.presence
+      - group.master_bedroom_card
+      - group.master_bathroom_card
+      - group.bed_room_1_card
+      - group.media_room_card
+      - group.foyer_card
+      - group.living_room_card
+      - group.downstairs_hallway_card
+      - group.garage_card
+      - group.alarm_automations_card
+      - group.alarm_control_card
+      - media_player.living_room_speaker
+
+  presence:
+    name: Presence
+    entities:
+      - input_boolean.guest_mode
+      - device_tracker.trent_bayesian
+      - device_tracker.ayesha_bayesian
+
+  family:
+    name: Family
+    entities:
+      - device_tracker.trent_bayesian
+      - device_tracker.ayesha_bayesian
+
+  rooms_view:
+    name: Rooms
+    view: yes
+    entities:
+      - group.master_bedroom_card
+      - group.master_bathroom_card
+      - group.bed_room_1_card
+      - group.media_room_card
+      - group.foyer_card
+      - group.living_room_card
+      - group.downstairs_hallway_card
+      - group.garage_card
+
+  master_bedroom_card:
+    name: Master Bedroom
+    entities:
+      - light.hue_color_light_2
+      - light.hue_color_light_3
+
+  master_bathroom_card:
+    name: Master Bathroom
+    entities:
+      - switch.bth1_exterior_door_20
+      - binary_sensor.bth1_exterior_door_20
+
+  garage_card:
+    name: "Garage"
+    entities:
+      - switch.grge_interior_door_19
+      - binary_sensor.grge_interior_door_19
+
+  bed_room_1_card:
+    name: "Prestyn's Room"
+    entities:
+      - sensor.br1_humidity_10
+      - sensor.br1_temperature_8
+      - sensor.br1_uv_11
+      - sensor.br1_lux_9
+      - switch.br1_motion_7
+      - binary_sensor.br1_motion_7
+      - light.hue_color_light_1
+
+  media_room_card:
+    name: Media Room
+    entities:
+      - sensor.mr_humidity_15
+      - sensor.mr_temperature_13
+      - sensor.mr_uv_16
+      - sensor.mr_lux_14
+      - switch.mr_motion_12
+      - binary_sensor.mr_motion_12
+      - light.mr_light_18
+
+  foyer_card:
+    name: Foyer
+    entities:
+      - switch.fy_exterior_door_17
+      - binary_sensor.fy_exterior_door_17
+      - light.fy_exterior_light_38
+      - light.fy_interior_light_39
+
+  downstairs_hallway_card:
+    name: Downstairs Hallway
+    entities:
+      - sensor.hallway_nest_protect_hallway_1_smoke_status
+      - sensor.hallway_nest_protect_hallway_1_co_status
+      - sensor.hallway_nest_protect_hallway_1_battery_health
+      - sensor.hallway_nest_protect_hallway_2_smoke_status
+      - sensor.hallway_nest_protect_hallway_2_co_status
+      - sensor.hallway_nest_protect_hallway_2_battery_health
+
+  living_room_card:
+    name: Living Room
+    entities:
+      - sensor.living_room_nest_protect_hallway_1_smoke_status
+      - sensor.living_room_nest_protect_hallway_1_co_status
+      - sensor.living_room_nest_protect_hallway_1_battery_health
+
+  alarm_automations_card:
+    name: Alarm Automations
+    entities:
+      - automation.alarm_trigger_automation
+      - automation.alarm_escalate_automation
+
+  alarm_control_card:
+    name: Alarm Control
+    entities:
+      - alarm_control_panel.ha_alarm
+      - sensor.xandem_status
+      - weblink.arlo_cloud
+      - weblink.xandem_local
+      - weblink.xandem_cloud

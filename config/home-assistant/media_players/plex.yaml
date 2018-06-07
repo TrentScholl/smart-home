@@ -1,0 +1,5 @@
+- platform: plex
+  entity_namespace: "plex"
+  remove_unavailable_clients: true
+  scan_interval: 5
+  include_non_clients: true

@@ -1,0 +1,64 @@
+media_player.media_room:
+  friendly_name: Media Room AVR
+device_tracker.trents_iphone:
+  friendly_name: Trent
+media_player.living_room_tv_ua65ku7000:
+  friendly_name: Living Room TV
+media_player.bed_room_ua55j6200:
+  friendly_name: Bed Room TV
+sensor.br1_humidity_10:
+  friendly_name: Prestyn's Room Humidity
+sensor.mr_humidity_15:
+  friendly_name: Media Room Humidity
+sensor.br1_temperature_8:
+  friendly_name: Prestyn's Room Temperature
+binary_sensor.br1_motion_7:
+  friendly_name: Prestyn's Room Motion
+sensor.br1_uv_11:
+  friendly_name: Prestyn's Room UV
+switch.br1_motion_7:
+  friendly_name: Prestyn's Room Armed
+binary_sensor.mr_motion_12:
+  friendly_name: Media Room Motion
+sensor.mr_temperature_13:
+  friendly_name: Media Room Temperature
+switch.mr_motion_12:
+  friendly_name: Media Room Armed
+sensor.mr_uv_16:
+  friendly_name: Media Room UV
+light.mr_light_18:
+  friendly_name: Media Room Light
+light.hue_color_light_1:
+  friendly_name: Prestyn's Room Lamp
+switch.grge_interior_door_19:
+  friendly_name: Garage Interior Door Armed
+binary_sensor.grge_interior_door_19:
+  friendly_name: Garage interior Door
+switch.fy_door_17:
+  friendly_name: Front Door Armed
+binary_sensor.fy_exterior_door_17:
+  friendly_name: Foyer Exterior Door
+binary_sensor.bth1_exterior_door_20:
+  friendly_name: Master Bathroom Exterior Door
+switch.bth1_exterior_door_20:
+  friendly_name: Master Bathroom Exterior Door Armed
+switch.fy_exterior_door_17:
+  friendly_name: Foyer Exterior Door Armed
+light.fy_exterior_light_38:
+  friendly_name: Foyer Exterior Light
+light.fy_interior_light_39:
+  friendly_name: Foyer Interior Light
+light.hue_color_light_2:
+  friendly_name: Master Bedroom Lamp 1
+light.hue_color_light_3:
+  friendly_name: Master Bedroom Lamp 2
+sensor.mr_lux_14:
+  friendly_name: Media Room Lux
+sensor.br1_lux_9:
+  friendly_name: Prestyn's Room Lux
+device_tracker.trent_bayesian:
+  friendly_name: Trent
+  entity_picture: https://www.gravatar.com/avatar/f6cb6f4eaeebf3d03c9fe58d86d558a0.jpg?s=80&d=wavatar
+device_tracker.ayesha_bayesian:
+  friendly_name: Ayesha
+  entity_picture: https://www.gravatar.com/avatar/7317812f6ec9dade6907bae453d49550.jpg?s=80&d=wavatar

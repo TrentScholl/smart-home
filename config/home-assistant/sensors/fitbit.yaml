@@ -1,0 +1,6 @@
+platform: fitbit
+clock_format: 12H
+monitored_resources:
+  - "activities/heart"
+  - "activities/tracker/steps"
+

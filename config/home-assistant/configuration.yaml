@@ -1,0 +1,168 @@
+homeassistant:
+  name: !secret homeassistant_name
+  latitude: !secret homeassistant_latitude
+  longitude: !secret homeassistant_longitude
+  elevation: !secret homeassistant_elevation
+  unit_system: metric
+  time_zone: !secret homeassistant_timezone
+  customize: !include customize.yaml
+  customize_glob:
+    "*.*":
+      custom_ui_state_card: state-card-custom-ui
+    "sensor.*nest_protect*_smoke_status":
+      icon: mdi:fire
+    "sensor.*nest_protect*_battery_health":
+      icon: mdi:battery
+    "sensor.*nest_protect*_co_status":
+      icon: mdi:periodic-table-co2
+    "binary_sensor.*nest_protect*_online":
+      icon: mdi:smoke-detector
+    "binary_sensor.*":
+      show_last_changed: 'true'
+    "binary_sensor.*_motion_*":
+      device_class: motion
+    "binary_sensor.*_door_*":
+      device_class: opening
+    "switch.*_uv_*":
+      hidden: true
+    "switch.*_motion_*":
+      icon: mdi:lock
+    "switch.*_door_*":
+      icon: mdi:lock
+    "sensor.*_humidity_*":
+      icon: mdi:water-percent
+
+config:
+
+recorder:
+
+frontend:
+  extra_html_url:
+    - /local/custom_ui/state-card-floorplan.html
+
+prometheus:
+
+customizer:
+  custom_ui: local
+
+panel_iframe:
+  nodered:
+    title: "Node-RED"
+    url: !secret nodered_url
+    icon: mdi:sitemap
+
+panel_custom:
+  - name: floorplan
+    sidebar_title: Floorplan
+    sidebar_icon: mdi:home
+    url_path: floorplan
+    config: !include floorplan.yaml
+
+http:
+  api_password: !secret http_api_password
+  trusted_networks:
+    - 172.18.0.0/16
+    - 127.0.0.1
+    - ::1
+    - !secret http_trusted_network
+  cors_allowed_origins:
+    - https://google.com
+    - https://home-assistant.io
+  use_x_forwarded_for: True
+  ip_ban_enabled: True
+  login_attempts_threshold: 5
+  base_url: !secret http_base_url
+
+updater:
+
+alarm_control_panel:
+  - platform: manual
+    code: !secret alarm_code
+    trigger_time: 90
+
+device_tracker: !include_dir_merge_list device_trackers/
+
+discovery:
+
+conversation:
+
+history:
+
+logbook:
+
+logger:
+  default: info
+
+map:
+
+sun:
+
+tts:
+  - platform: google_cloud
+    speaking_rate: 1.05
+    pitch: 2.0
+    input: ssml
+
+cloud:
+
+ios:
+  push:
+    categories:
+      - name: Alarm
+        identifier: 'alarm'
+        actions:
+          - identifier: 'SILENCE_ALARM'
+            title: 'Silence Alarm'
+            activationMode: 'background'
+            authenticationRequired: no
+            destructive: yes
+            behavior: 'default'
+      - name: Siren
+        identifier: 'siren'
+        actions:
+          - identifier: 'ACTIVATE_SIRENS'
+            title: 'Activate Sirens'
+            activationMode: 'background'
+            authenticationRequired: no
+            destructive: yes
+            behavior: 'default'
+
+hue:
+  bridges:
+    - host: !secret hue_bridge_host
+      allow_unreachable: true
+      allow_hue_groups: false
+
+nest:
+  client_id: !secret nest_client_id
+  client_secret: !secret nest_client_secret
+  sensors:
+    monitored_conditions:
+      - co_status
+      - smoke_status
+      - battery_health
+
+media_player: !include_dir_merge_list media_players/
+
+vera:
+  vera_controller_url: !secret vera_controller_url
+  exclude: [ 37 ]
+  lights: [ 38, 39 ]
+
+input_boolean:
+  guest_mode:
+    name: House Guests
+    icon: mdi:plane-shield
+
+notify:
+  - name: Everyone
+    platform: group
+    services:
+      - service: ios_trent_ios
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+zone: !include_dir_list zones/
+sensor: !include_dir_list sensors/
+binary_sensor: !include_dir_merge_list binary_sensors/

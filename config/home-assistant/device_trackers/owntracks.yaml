@@ -1,0 +1,2 @@
+- platform: owntracks_http
+  max_gps_accuracy: 200

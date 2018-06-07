@@ -1,0 +1,9 @@
+- platform: unifi
+  host: !secret unifi_host
+  port: 443
+  username: !secret unifi_username
+  password: !secret unifi_password
+  verify_ssl: False
+  track_new_devices: no
+  new_device_defaults:
+    track_new_devices: False
