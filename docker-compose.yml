@@ -9,7 +9,7 @@ networks:
 
 services:
   nginx-proxy:
-    restart: always
+    restart: unless-stopped
     image: jwilder/nginx-proxy:${NGINX_PROXY_TAG}
     labels:
       - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
@@ -29,7 +29,7 @@ services:
       - ./config/nginx/certs/:/etc/nginx/certs:ro
 
   letsencrypt-nginx-proxy-companion:
-    restart: always
+    restart: unless-stopped
     image: jrcs/letsencrypt-nginx-proxy-companion:${LETS_ENCRYPT_COMPANION_TAG}
     networks:
       - smart-home
@@ -71,12 +71,12 @@ services:
       - "${RADARR_VHOST}.${DOMAIN}:${HOST_IP}"
       - "${GRAFANA_VHOST}.${DOMAIN}:${HOST_IP}"
       - "${PROMETHEUS_VHOST}.${DOMAIN}:${HOST_IP}"
-    restart: always
+    restart: unless-stopped
     volumes:
       - ./config/pihole:/etc/pihole
 
   dynamic-dns:
-    restart: always
+    restart: unless-stopped
     image: route53-dyndns
     networks:
       - smart-home
@@ -88,7 +88,7 @@ services:
       ROUTE53_UPDATE_FREQUENCY: ${DYNAMIC_DNS_ROUTE53_UPDATE_FREQUENCY}
 
   home-assistant:
-    restart: always
+    restart: unless-stopped
     image: homeassistant/home-assistant:${HASS_TAG}
     hostname: ${HASS_VHOST}.${DOMAIN}
     expose:
@@ -107,7 +107,7 @@ services:
       - letsencrypt-nginx-proxy-companion
 
   node-red:
-    restart: always
+    restart: unless-stopped
     image: nodered/node-red-docker:${NODE_RED_TAG}
     hostname: ${NODE_RED_VHOST}.${DOMAIN}
     expose:
@@ -123,7 +123,7 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
 
   plex:
-    restart: always
+    restart: unless-stopped
     hostname: ${PLEX_VHOST}.${DOMAIN}
     image: plexinc/pms-docker:${PLEX_TAG}
     ports:
@@ -150,7 +150,7 @@ services:
       - letsencrypt-nginx-proxy-companion
 
   unifi-controller:
-    restart: always
+    restart: unless-stopped
     hostname: ${UNIFI_VHOST}.${DOMAIN}
     image: linuxserver/unifi:${UNIFI_TAG}
     networks:
@@ -178,7 +178,7 @@ services:
   sabnzbd:
     image: sabnzbd/sabnzbd:${SABNZBD_TAG}
     hostname: ${SABNZBD_VHOST}.${DOMAIN}
-    restart: always
+    restart: unless-stopped
     networks:
       - smart-home
     expose:
@@ -195,7 +195,7 @@ services:
 
   sonarr:
     image: linuxserver/sonarr:${SONARR_TAG}
-    restart: always
+    restart: unless-stopped
     networks:
       - smart-home
     expose:
@@ -214,7 +214,7 @@ services:
 
   radarr:
     image: linuxserver/radarr:${RADARR_TAG}
-    restart: always
+    restart: unless-stopped
     networks:
       - smart-home
     expose:
