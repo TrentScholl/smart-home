@@ -1,0 +1,232 @@
+version: "3"
+
+volumes:
+  - nginx_proxy_vhost
+  - nginx_proxy_html
+
+networks:
+  smart-home:
+
+services:
+  nginx-proxy:
+    restart: always
+    image: jwilder/nginx-proxy:${NGINX_PROXY_TAG}
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      smart-home:
+        aliases:
+          - ${HASS_VHOST}.${DOMAIN}
+          - ${NODE_RED_VHOST}.${DOMAIN}
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - nginx_proxy_vhost:/etc/nginx/vhost.d
+      - nginx_proxy_html:/usr/share/nginx/html
+      - ./config/nginx/htpasswd:/etc/nginx/htpasswd
+      - ./config/nginx/certs/:/etc/nginx/certs:ro
+
+  letsencrypt-nginx-proxy-companion:
+    restart: always
+    image: jrcs/letsencrypt-nginx-proxy-companion:${LETS_ENCRYPT_COMPANION_TAG}
+    networks:
+      - smart-home
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nginx_proxy_vhost:/etc/nginx/vhost.d
+      - nginx_proxy_html:/usr/share/nginx/html
+      - /storage/apps/nginx/certs/:/etc/nginx/certs:rw
+    depends_on:
+      - nginx-proxy
+
+  pi-hole:
+    image: diginc/pi-hole:latest
+    ports:
+      - 53:53
+      - 53:53/udp
+    expose:
+      - 8053
+    networks:
+      - smart-home
+    cap_add:
+      - NET_ADMIN
+    environment:
+      WEBPASSWORD: ${PI_HOLE_WEBPASSWORD}
+      ServerIP: ${HOST_IP}
+      PROXY_LOCATION: ${PI_HOLE_VHOST}
+      VIRTUAL_HOST: ${PI_HOLE_VHOST}.${DOMAIN}
+      LETSENCRYPT_HOST: ${PI_HOLE_VHOST}.${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    extra_hosts:
+      - "${DOMAIN}:${HOST_IP}"
+      - "${PI_HOLE_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${HASS_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${NODE_RED_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${PLEX_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${UNIFI_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${SABNZBD_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${SONARR_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${RADARR_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${GRAFANA_VHOST}.${DOMAIN}:${HOST_IP}"
+      - "${PROMETHEUS_VHOST}.${DOMAIN}:${HOST_IP}"
+    restart: always
+    volumes:
+      - ./config/pihole:/etc/pihole
+
+  dynamic-dns:
+    restart: always
+    image: route53-dyndns
+    networks:
+      - smart-home
+    environment:
+      AWS_ACCESS_KEY_ID: ${DYNAMIC_DNS_AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${DYNAMIC_DNS_AWS_SECRET_ACCESS_KEY}
+      ROUTE53_DOMAIN_A_RECORD: ${DYNAMIC_DNS_ROUTE53_DOMAIN_A_RECORD}
+      ROUTE53_ZONE: ${DYNAMIC_DNS_ROUTE53_ZONE}
+      ROUTE53_UPDATE_FREQUENCY: ${DYNAMIC_DNS_ROUTE53_UPDATE_FREQUENCY}
+
+  home-assistant:
+    restart: always
+    image: homeassistant/home-assistant:${HASS_TAG}
+    hostname: ${HASS_VHOST}.${DOMAIN}
+    expose:
+      - 8123
+    networks:
+      - smart-home
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/home-assistant:/config
+    environment:
+      VIRTUAL_HOST: ${HASS_VHOST}.${DOMAIN}
+      LETSENCRYPT_HOST: ${HASS_VHOST}.${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    depends_on:
+      - nginx-proxy
+      - letsencrypt-nginx-proxy-companion
+
+  node-red:
+    restart: always
+    image: nodered/node-red-docker:${NODE_RED_TAG}
+    hostname: ${NODE_RED_VHOST}.${DOMAIN}
+    expose:
+      - 1880
+    networks:
+      - smart-home
+    volumes:
+      - ./config/node-red:/data
+    user: root
+    environment:
+      VIRTUAL_HOST: ${NODE_RED_VHOST}.${DOMAIN}
+      LETSENCRYPT_HOST: ${NODE_RED_VHOST}.${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+
+  plex:
+    restart: always
+    hostname: ${PLEX_VHOST}.${DOMAIN}
+    image: plexinc/pms-docker:${PLEX_TAG}
+    ports:
+      - 32400:32400
+    expose:
+      - 32400
+    networks:
+      - smart-home
+    environment:
+      ADVERTISE_IP: http://${HOST_IP}:32400/
+      ALLOWED_NETWORKS: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1
+      PLEX_UID: ${MEDIA_UID}
+      PLEX_GID: ${MEDIA_GID}
+      VIRTUAL_HOST: ${PLEX_VHOST}.${DOMAIN}
+      LETSENCRYPT_HOST: ${PLEX_VHOST}.${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/plex:/config
+      - ./config/plex/transcode:/transcode
+      - /storage:/data
+    depends_on:
+      - nginx-proxy
+      - letsencrypt-nginx-proxy-companion
+
+  unifi-controller:
+    restart: always
+    hostname: ${UNIFI_VHOST}.${DOMAIN}
+    image: linuxserver/unifi:${UNIFI_TAG}
+    networks:
+      - smart-home
+    ports:
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      - 8081:8081
+      - 8443:8443
+      - 8843:8843
+      - 8880:8880
+      - 6789:6789
+    expose:
+      - 8443
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/unifi:/config
+    environment:
+      VIRTUAL_HOST: ${UNIFI_VHOST}.${DOMAIN}
+      VIRTUAL_PROTO: https
+      LETSENCRYPT_HOST: ${UNIFI_VHOST}.${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+
+  sabnzbd:
+    image: sabnzbd/sabnzbd:${SABNZBD_TAG}
+    hostname: ${SABNZBD_VHOST}.${DOMAIN}
+    restart: always
+    networks:
+      - smart-home
+    expose:
+      - 8080
+    volumes:
+      - ./config/sabnzbd:/datadir
+      - ${MEDIA_ROOT}:/media
+    environment:
+      SABNZBD_UID: ${MEDIA_UID}
+      SABNZBD_GID: ${MEDIA_GID}
+      VIRTUAL_HOST: ${SABNZBD_VHOST}.${DOMAIN}
+      LETSENCRYPT_HOST: ${SABNZBD_VHOST}.${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+
+  sonarr:
+    image: linuxserver/sonarr:${SONARR_TAG}
+    restart: always
+    networks:
+      - smart-home
+    expose:
+      - 8989
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/sonarr:/config
+      - ${MEDIA_ROOT}/tv:/tv
+      - ${MEDIA_ROOT}/downloads/complete/tv:/downloads
+    environment:
+      PUID: ${MEDIA_UID}
+      PGID: ${MEDIA_GID}
+      VIRTUAL_HOST: ${SONARR_VHOST}.${DOMAIN}
+      LETSENCRYPT_HOST: ${SONARR_VHOST}.${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+
+  radarr:
+    image: linuxserver/radarr:${RADARR_TAG}
+    restart: always
+    networks:
+      - smart-home
+    expose:
+      - 7878
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/radarr:/config
+      - ${MEDIA_ROOT}/movies/HD:/movies
+      - ${MEDIA_ROOT}/downloads/complete/movies:/downloads
+    environment:
+      PUID: ${MEDIA_UID}
+      PGID: ${MEDIA_GID}
+      VIRTUAL_HOST: ${RADARR_VHOST}.${DOMAIN}
+      LETSENCRYPT_HOST: ${RADARR_VHOST}.${DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
