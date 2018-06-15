@@ -102,6 +102,11 @@ services:
       VIRTUAL_HOST: ${HASS_VHOST}.${DOMAIN}
       LETSENCRYPT_HOST: ${HASS_VHOST}.${DOMAIN}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8123"]
+      interval: 30s
+      timeout: 10s
+      retries: 6
     depends_on:
       - nginx-proxy
       - letsencrypt-nginx-proxy-companion
