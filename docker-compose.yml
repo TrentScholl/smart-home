@@ -42,7 +42,7 @@ services:
       - nginx-proxy
 
   pi-hole:
-    image: diginc/pi-hole:latest
+    image: diginc/pi-hole:${PI_HOLE_TAG}
     ports:
       - 53:53
       - 53:53/udp
